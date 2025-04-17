@@ -1,0 +1,11 @@
+duration: 15
+gustiness_range: [3, 10]
+
+# wind profile_* parameters defined here are ignored in the simulation process
+# so please just ignore them
+wind_profile_magnitude_range: [200, 500]
+wind_profile_acceptable_transition_threshold: 100
+
+num_data: 200  # generate 1000 wind noise data for each sample rate
+sample_rates: [8000, 16000, 22050, 24000, 32000, 44100, 48000]
+seeds: [78093745, 231, 352312, 1, 940211, 49829, 1090]

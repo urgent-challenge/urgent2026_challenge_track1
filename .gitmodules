@@ -1,0 +1,3 @@
+[submodule "simulation/SC-Wind-Noise-Generator"]
+	path = simulation/SC-Wind-Noise-Generator
+	url = https://github.com/audiolabs/SC-Wind-Noise-Generator.git

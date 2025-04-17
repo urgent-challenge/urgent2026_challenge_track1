@@ -1,0 +1,30 @@
+speech_scps:
+- data/tmp/dns5_clean_read_speech_resampled_filtered_validation.scp
+- data/tmp/libritts_resampled_validation.scp
+- data/tmp/vctk_validation.scp
+- data/tmp/wsj_validation.scp
+- data/tmp/ears_validation.scp
+- data/tmp/commonvoice_19.0_de_resampled_validation.scp
+- data/tmp/commonvoice_19.0_es_resampled_validation.scp
+- data/tmp/commonvoice_19.0_fr_resampled_validation.scp
+- data/tmp/commonvoice_19.0_zh-CN_resampled_validation.scp
+- data/tmp/mls_german_resampled_validation.scp
+- data/tmp/mls_spanish_resampled_validation.scp
+- data/tmp/mls_french_resampled_validation.scp
+
+# extract 200 x 12 = 2400 speech in total
+num_data_per_dataset:
+- 200 # dns5
+- 200 # libritts
+- 200 # vctk
+# - 200 # wsj
+- 200 # ears
+- 200 # cv-de
+- 200 # cv-es
+- 200 # cv-fr
+- 200 # cv-zh-CN
+- 200 # mls-de
+- 200 # mls-es
+- 200 # mls-fr
+
+seed: 1247111024

@@ -1,0 +1,72 @@
+speech_scps:
+- data/tmp/validation/speech_validation_subset.scp
+
+speech_utt2spk:
+- data/tmp/validation/speech_validation_subset.utt2spk
+
+speech_text:
+- data/tmp/validation/speech_validation_subset.text
+
+log_dir: simulation_validation/log
+output_dir: simulation_validation
+repeat_per_utt: 1
+seed: 0
+
+noise_scps:
+- data/tmp/dns5_noise_resampled_validation.scp
+- data/tmp/wham_noise_validation.scp
+- data/tmp/fma_noise_resampled_validation.scp
+- data/tmp/fsd50k_noise_resampled_validation.scp
+snr_low_bound: -5.0
+snr_high_bound: 20.0
+reuse_noise: true
+store_noise: false
+
+wind_noise_scps:
+- data/tmp/wind_noise_validation.scp
+prob_wind_noise: 0.05
+wind_noise_config:
+  threshold: [0.1, 0.3]
+  ratio: [1, 20]
+  attack: [5, 100]
+  release: [5, 100]
+  sc_gain: [0.8, 1.2]
+  clipping_threshold: [0.85, 1.0]
+  clipping_chance: 0.75
+wind_noise_snr_low_bound: -10.0
+wind_noise_snr_high_bound: 15.0
+
+rir_scps:
+- data/tmp/dns5_rirs.scp
+prob_reverberation: 0.5
+reuse_rir: false
+
+augmentations:
+  bandwidth_limitation:
+    weight: 1.0
+    resample_methods: random
+  clipping:
+    weight: 1.0
+    clipping_min_quantile: [0.0, 0.1]
+    clipping_max_quantile: [0.9, 1.0]
+  codec:
+    weight: 1.0
+    config:
+      - format: mp3
+        encoder: null
+        qscale: [1, 10]
+      - format: ogg
+        encoder: [vorbis, ]
+        qscale: [-1, 10]
+  packet_loss:
+    weight: 1.0
+    packet_duration_ms: 20
+    max_continuous_packet_loss: 10
+    packet_loss_rate: [0.05, 0.25]
+
+# key: number of aug. value: probability
+num_augmentations:
+  0: 0.25
+  1: 0.40
+  2: 0.20
+  3: 0.15
