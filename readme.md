@@ -36,9 +36,6 @@ If DM is not used, a espnet-like training set should be used:
 data/train
 ├── speech_length.scp
 ├── spk1.scp
-├── spk2utt
-├── text
 ├── utt2fs
-├── utt2spk
 └── wav.scp
 ```
