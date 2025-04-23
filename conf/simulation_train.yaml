@@ -1,5 +1,5 @@
 speech_scps:
-- data/train_sources/speech_sources_relative.scp
+- data/train_sources/speech_sources.scp
 
 speech_utt2spk:
 - data/train_sources/utt2spk
@@ -15,14 +15,14 @@ repeat_per_utt: 1
 seed: 0
 
 noise_scps:
-- data/train_sources/noise_scoures_relative.scp
+- data/train_sources/noise_scoures.scp
 snr_low_bound: -5.0
 snr_high_bound: 20.0
 reuse_noise: true
 store_noise: false
 
 wind_noise_scps:
-- data/train_sources/wind_noise_scoures_relative.scp
+- data/train_sources/wind_noise_scoures.scp
 prob_wind_noise: 0.05
 wind_noise_config:
   threshold: [0.1, 0.3]
@@ -36,7 +36,7 @@ wind_noise_snr_low_bound: -10.0
 wind_noise_snr_high_bound: 15.0
 
 rir_scps:
-- data/train_sources/rirs_relative.scp
+- data/train_sources/rirs.scp
 prob_reverberation: 0.5
 reuse_rir: true
 

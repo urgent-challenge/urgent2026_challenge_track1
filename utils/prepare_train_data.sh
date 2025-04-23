@@ -8,7 +8,7 @@ set -o pipefail
 
 
 
-urgent25_path="./urgent2025_challenge"
+urgent25_path="/mnt/rexp/urgent2025_challenge"
 train_source_output=./data/train_sources
 train_simulation_output=./data/train_simulation
 
@@ -32,7 +32,7 @@ subsets["mls_es"]="data/tmp/mls_spanish_resampled_train_track1"
 subsets["mls_fr"]="data/tmp/mls_french_resampled_train_track1"
 
 for key in ${!subsets[@]}; do
-    if [ !-f "${urgent25_path}/${subsets[${key}]}.scp" ]; then
+    if [ ! -f "${urgent25_path}/${subsets[${key}]}.scp" ]; then
         echo "${urgent25_path}/${subsets[${key}]} not found, make sure you have URGENT25 dataset prepared"
         exit -1 
     fi
@@ -47,7 +47,7 @@ cat data/tmp/train_sources/*.text > data/tmp/train_sources/all_text
 cat data/tmp/train_sources/*.utt2spk > data/tmp/train_sources/all_utt2spk
 
 
-./utils/filter_scp.pl meta/train_selected_700h  data/tmp/train_sources/all_scp > ${train_source_output}/speech_sources.scp
+./utils/filter_scp.pl meta/train_selected_700h  data/tmp/train_sources/all_scp | awk -v pwd="${urgent25_path}" '{ if ($3 !~ /^\//) { sub(/^\.\//, "", $3); $3 = pwd "/" $3 } print }' >  ${train_source_output}/speech_sources.scp
 ./utils/filter_scp.pl meta/train_selected_700h  data/tmp/train_sources/all_text > ${train_source_output}/text
 ./utils/filter_scp.pl meta/train_selected_700h  data/tmp/train_sources/all_utt2spk > ${train_source_output}/utt2spk
 
@@ -55,11 +55,11 @@ cat data/tmp/train_sources/*.utt2spk > data/tmp/train_sources/all_utt2spk
 cat ${urgent25_path}/data/tmp/dns5_noise_resampled_train.scp \
 ${urgent25_path}/data/tmp/wham_noise_train.scp \
 ${urgent25_path}/data/tmp/fma_noise_resampled_train.scp \
-${urgent25_path}/data/tmp/fsd50k_noise_resampled_train.scp  >  ${train_source_output}/noise_scoures.scp
+${urgent25_path}/data/tmp/fsd50k_noise_resampled_train.scp |  awk -v pwd="${urgent25_path}" '{ if ($3 !~ /^\//) { sub(/^\.\//, "", $3); $3 = pwd "/" $3 } print }' >  ${train_source_output}/noise_scoures.scp
 
-cp ${urgent25_path}/data/tmp/wind_noise_train.scp  ${train_source_output}/wind_noise_scoures.scp
+awk -v pwd="${urgent25_path}" '{ if ($3 !~ /^\//) { sub(/^\.\//, "", $3); $3 = pwd "/" $3 } print }' ${urgent25_path}/data/tmp/wind_noise_train.scp >  ${train_source_output}/wind_noise_scoures.scp
 
-cp ${urgent25_path}/data/tmp/dns5_rirs.scp ${train_source_output}/rirs.scp
+awk -v pwd="${urgent25_path}" '{ if ($3 !~ /^\//) { sub(/^\.\//, "", $3); $3 = pwd "/" $3 } print }' ${urgent25_path}/data/tmp/dns5_rirs.scp > ${train_source_output}/rirs.scp
 
 
 ###

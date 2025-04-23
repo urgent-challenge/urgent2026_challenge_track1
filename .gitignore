@@ -26,6 +26,7 @@ out/config.yaml
 doc/vuepress/src/.vuepress/.temp
 doc/vuepress/src/.vuepress/.cache
 dist
+simulation_train/
 
 exp/
 data/
