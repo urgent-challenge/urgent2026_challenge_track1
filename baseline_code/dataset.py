@@ -330,13 +330,15 @@ class DynamicMixingDataset(torch.utils.data.Dataset):
 
 
 class GroupedBatchSampler(BatchSampler):
-    def __init__(self, dataset, batch_size, rank, world_size, drop_last=False, bucket_size_mult=100, sampler=None):
+    def __init__(self, dataset, batch_size, rank, world_size, seed=0, drop_last=False, bucket_size_mult=100, sampler=None):
         self.batch_size = batch_size
         self.drop_last = drop_last
         self.bucket_size = batch_size * bucket_size_mult  # 桶大小（可调整）
         self.epoch = 0
         self.world_size = world_size
         self.rank = rank
+        self.seed = seed
+        self.generator = torch.Generator().manual_seed(seed + rank + self.epoch)
 
         # 按采样率分组索引
         sr_groups = defaultdict(list)
@@ -359,6 +361,7 @@ class GroupedBatchSampler(BatchSampler):
 
     def set_epoch(self, epoch):
         self.epoch = epoch  # 每次epoch更新时会调用
+        self.generator.manual_seed(self.seed + self.rank + self.epoch)
 
     def __iter__(self):
         # 打乱桶的顺序以增加随机性
@@ -377,6 +380,9 @@ class GroupedBatchSampler(BatchSampler):
         # 打乱所有批次的顺序
         random.shuffle(all_batches)
         return iter(all_batches)
+    
+    def state_dict(self):
+        return {'seed': self.seed, 'epoch': self.epoch}
 
     def __len__(self):
         total = 0
