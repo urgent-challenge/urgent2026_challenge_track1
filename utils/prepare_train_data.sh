@@ -32,7 +32,7 @@ subsets["mls_es"]="data/tmp/mls_spanish_resampled_train_track1"
 subsets["mls_fr"]="data/tmp/mls_french_resampled_train_track1"
 
 for key in ${!subsets[@]}; do
-    if [ !-f ${urgent25_path}/${subsets[${key}]} ]; then
+    if [ !-f "${urgent25_path}/${subsets[${key}]}.scp" ]; then
         echo "${urgent25_path}/${subsets[${key}]} not found, make sure you have URGENT25 dataset prepared"
         exit -1 
     fi
