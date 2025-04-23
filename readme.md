@@ -1,13 +1,32 @@
 ## How to run:
 
 
-Setup:
+### Setup:
 ```
 pip install espnet
 pip install -e ./
 ```
 
+### Training Set Preparation
 
+Check the script `utils/prepare_train_data.sh`  and set `urgent25_path` in it with the path to the `urgent2025_challenge` project in your system. 
+This script assumes you have already run `prepare_espnet_data.sh` in the `urgent2025_challenge` project.
+
+```bash 
+bash utils/prepare_train_data.sh
+```
+By default, this script will generate a simulated training set in `./data/train_simulation`, and a dynamic mixing training set in `./data/train_sources`.
+
+### Validation Set Preparation
+
+Check the script `utils/prepare_validation_data.sh`  and set `urgent25_path` in it with the path to the `urgent2025_challenge` project in your system. 
+```bash 
+bash utils/prepare_validation_data.sh
+```
+By default, this script will generate a simulated validation set in `./data/validation`.
+
+
+### Training
 Train with dynamic mixing:
 ```bash 
 python baseline_code/train_se.py \
@@ -31,11 +50,16 @@ python baseline_code/train_se.py \
 --val_check_interval 10000
 ```
 
-If DM is not used, a espnet-like training set should be used:
+If dynamic mixing is not used, a ESPnet-like training set should be used:
 ```
 data/train
 ├── speech_length.scp
 ├── spk1.scp
+├── spk2utt (not used)
+├── text (not used)
+├── utt2category (not used)
 ├── utt2fs
+├── utt2lang (not used)
+├── utt2spk (not used)
 └── wav.scp
 ```

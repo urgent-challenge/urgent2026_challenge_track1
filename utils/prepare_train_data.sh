@@ -7,7 +7,9 @@ set -u
 set -o pipefail
 
 
-
+## replace urgent25_path with your urgent2025_challenge path
+## This script assume you have alrealy run the 'prepare_espnet_data.sh'
+## in urgent2025_challenge project
 urgent25_path="/mnt/rexp/urgent2025_challenge"
 train_source_output=./data/train_sources
 train_simulation_output=./data/train_simulation
@@ -51,6 +53,7 @@ cat data/tmp/train_sources/*.utt2spk > data/tmp/train_sources/all_utt2spk
 ./utils/filter_scp.pl meta/train_selected_700h  data/tmp/train_sources/all_text > ${train_source_output}/text
 ./utils/filter_scp.pl meta/train_selected_700h  data/tmp/train_sources/all_utt2spk > ${train_source_output}/utt2spk
 
+python utils/utt2numsamples.py --input_scp ${train_source_output}/speech_sources.scp --outfile ${train_source_output}/source_length.scp
 
 cat ${urgent25_path}/data/tmp/dns5_noise_resampled_train.scp \
 ${urgent25_path}/data/tmp/wham_noise_train.scp \
@@ -95,3 +98,4 @@ NUMBA_NUM_THREADS=1 python utils/get_utt2lang.py \
     --meta_tsv simulation_train/log/meta.tsv --outfile utt2lang
 sort -u -k1,1 utt2lang > "${train_simulation_output}"/utt2lang && rm utt2lang
 
+python utils/utt2numsamples.py --input_scp ${train_simulation_output}/wav.scp --outfile ${train_simulation_output}/speech_length.scp
