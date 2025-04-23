@@ -27,7 +27,7 @@ def main(args):
     device = args.device
 
     #  ckpt='exp/run_baseline_bsrnn/baseline_bsrnn/version_0/checkpoints/best_epoch=01-step=270000-val_loss=222932.094.ckpt'
-    ckpt='/mnt/dblack/workspace/urgent26/exp/run_baseline_bsrnn/baseline_bsrnn/version_0/checkpoints/best_epoch=01-step=310000-val_loss=208462.438.ckpt'
+    ckpt='exp/run_baseline_bsrnn/baseline_bsrnn/version_0/checkpoints/best_epoch=04-step=1600000-val_loss=183838.750.ckpt'
     model = SEModel.load_from_checkpoint(ckpt, map_location=args.device)
     model.eval()
 

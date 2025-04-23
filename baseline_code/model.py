@@ -19,11 +19,29 @@ class SEModel(L.LightningModule):
         self.se_model = BSRNN()
         self.mr_l1_loss = MultiResL1SpecLoss(window_sz=[256, 512, 768, 1024], eps = 1.0e-8,normalize_variance=True, time_domain_weight=0.5)
         self.sisnr_loss = SISNRLoss()
+        self.grad_has_nan = False
 
     def on_before_optimizer_step(self, optimizer: Optimizer) -> None:
 
         return
 
+    def on_after_backward(self):
+        # check if has grad of NaN
+        self.grad_has_nan = any(
+            torch.isnan(p.grad).any() 
+            for p in self.parameters() 
+            if p.grad is not None
+        )
+
+    
+    def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_closure=None):
+        if self.grad_has_nan:
+            print('NaN in grad has been decected, reset grad to zero')
+            optimizer.zero_grad()
+            self.grad_has_nan = False
+        else:
+            super().optimizer_step(epoch, batch_idx, optimizer, optimizer_closure)
+    
     def forward_step(self, batch, stage='train'):
 
         clean_speech, noisy_speech, fs, speech_length = batch
@@ -36,6 +54,10 @@ class SEModel(L.LightningModule):
         se_speech, se_spec = self.se_model(noisy_speech, speech_length, fs)
 
         loss = self.mr_l1_loss(clean_speech, se_speech).mean()
+
+        if torch.isnan(loss):
+            print('NaN in loss has been decected, skip')
+            return None  # Skip current step
 
         with torch.no_grad():
             sisnr_loss = self.sisnr_loss(clean_speech, se_speech).mean()
@@ -68,6 +90,7 @@ class SEModel(L.LightningModule):
             self.parameters(),
             lr=self.cfg.learning_rate,
             eps=self.cfg.adam_epsilon,
+            weight_decay=self.cfg.weight_decay,
         )
         scheduler = torch.optim.lr_scheduler.StepLR(
             optimizer, step_size=self.cfg.lr_step_size, gamma=self.cfg.lr_gamma)
