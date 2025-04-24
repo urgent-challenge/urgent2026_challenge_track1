@@ -582,6 +582,7 @@ def process_one_sample(
         np.max(np.abs(noisy_speech)),
         np.max(np.abs(speech_sample)),
         np.max(np.abs(noise_sample)),
+        1e-6,
     )
 
     if on_the_fly:
