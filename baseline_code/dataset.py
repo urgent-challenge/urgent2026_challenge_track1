@@ -447,11 +447,11 @@ class AudioDataModule(lightning.LightningDataModule):
 
         if self.config.train_set_dynamic_mixing:
             self.train_dataset = DynamicMixingDataset(
-                speech_source_scp=f'{self.train_dir}/speech_sources_relative.scp',
-                noise_source_scp=f'{self.train_dir}/noise_scoures_relative.scp',
+                speech_source_scp=f'{self.train_dir}/speech_sources.scp',
+                noise_source_scp=f'{self.train_dir}/noise_scoures.scp',
                 speech_length_file=f'{self.train_dir}/source_length.scp',
-                rir_scp=f'{self.train_dir}/rirs_relative.scp',
-                windnoise_scp=f'{self.train_dir}/wind_noise_scoures_relative.scp',
+                rir_scp=f'{self.train_dir}/rirs.scp',
+                windnoise_scp=f'{self.train_dir}/wind_noise_scoures.scp',
                 retry_when_fails=True,
                 max_duration=config.max_duration,
             )
