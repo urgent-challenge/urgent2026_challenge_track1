@@ -493,6 +493,7 @@ class AudioDataModule(lightning.LightningDataModule):
             batch_sampler=self.train_batch_sampler,
             num_workers=self.num_worker,
             pin_memory=False,
+            persistent_workers=True,
             collate_fn=collate_fn,
         )
     
@@ -511,6 +512,7 @@ class AudioDataModule(lightning.LightningDataModule):
             batch_sampler=self.val_batch_sampler,
             num_workers=self.num_worker,
             pin_memory=False,
+            persistent_workers=True,
             collate_fn=collate_fn,
         )
 

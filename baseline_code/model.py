@@ -17,7 +17,7 @@ class SEModel(L.LightningModule):
         self.cfg = cfg
         self.nn = torch.nn.Linear(100, 100)
         self.se_model = BSRNN()
-        self.mr_l1_loss = MultiResL1SpecLoss(window_sz=[256, 512, 768, 1024], eps = 1.0e-8,normalize_variance=True, time_domain_weight=0.5)
+        self.mr_l1_loss = MultiResL1SpecLoss(window_sz=[256, 512, 768, 1024], eps = 1.0e-6,normalize_variance=True, time_domain_weight=0.5)
         self.sisnr_loss = SISNRLoss()
         self.grad_has_nan = False
 
@@ -57,7 +57,7 @@ class SEModel(L.LightningModule):
 
         if torch.isnan(loss):
             print('NaN in loss has been decected, skip')
-            return None  # Skip current step
+            return se_speech.mean() * 0  # Skip current step
 
         with torch.no_grad():
             sisnr_loss = self.sisnr_loss(clean_speech, se_speech).mean()
@@ -71,6 +71,8 @@ class SEModel(L.LightningModule):
         self.log(f'{stage}_sisnr', - sisnr_loss.detach().item(),
                  on_step=True, prog_bar=True, batch_size=batch_size)
 
+        self.log(f'{stage}_sisnr_{fs}', - sisnr_loss.detach().item(),
+                 on_step=True, prog_bar=True, batch_size=batch_size)
         return loss
 
     def training_step(self, batch):

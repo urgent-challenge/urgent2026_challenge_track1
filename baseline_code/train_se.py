@@ -2,8 +2,6 @@
 
 import os
 from torch import optim, nn, utils, Tensor
-from torchvision.datasets import MNIST
-from torchvision.transforms import ToTensor
 import lightning as L
 import torch
 import argparse
