@@ -133,12 +133,18 @@ class PreSimulatedDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
 
         uid = self.uid[index]
-        audio, fs = read_audio(self.clean_speech[uid], max_duration=self.max_duration)
+        audio, fs = read_audio(self.clean_speech[uid])
 
         assert fs == self.utt2fs[uid]
 
-        noisy, fs = read_audio(self.noisy_speech[uid], max_duration=self.max_duration)
+        noisy, fs = read_audio(self.noisy_speech[uid])
         assert fs == self.utt2fs[uid]
+
+
+        if self.max_duration > 0 and audio.shape[1] > self.max_duration:
+            start = random.randint(0, audio.shape[1] - self.max_duration)
+            audio = audio[:, start:start+self.max_duration]
+            noisy = noisy[:, start:start+self.max_duration]
 
         speech_length = audio.shape[1]
 
