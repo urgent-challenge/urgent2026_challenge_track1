@@ -39,8 +39,7 @@ class SEModel(L.LightningModule):
             print('NaN in grad has been decected, reset grad to zero')
             optimizer.zero_grad()
             self.grad_has_nan = False
-        else:
-            super().optimizer_step(epoch, batch_idx, optimizer, optimizer_closure)
+        super().optimizer_step(epoch, batch_idx, optimizer, optimizer_closure)
     
     def forward_step(self, batch, stage='train'):
 
