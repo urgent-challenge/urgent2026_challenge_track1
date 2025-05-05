@@ -63,3 +63,9 @@ data/train
 ├── utt2spk (not used)
 └── wav.scp
 ```
+
+### Inference:
+
+```bash
+python baseline_code/inference.py --input_scp [path_to_input_scp] --output [output_dir] --ckpt_path [path_to_checkpoint]
+```
