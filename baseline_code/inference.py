@@ -26,9 +26,7 @@ def main(args):
 
     device = args.device
 
-    #  ckpt='exp/run_baseline_bsrnn/baseline_bsrnn/version_0/checkpoints/best_epoch=01-step=270000-val_loss=222932.094.ckpt'
-    ckpt='exp/run_baseline_bsrnn/baseline_bsrnn/version_0/checkpoints/best_epoch=04-step=1600000-val_loss=183838.750.ckpt'
-    model = SEModel.load_from_checkpoint(ckpt, map_location=args.device)
+    model = SEModel.load_from_checkpoint(args.ckpt_path, map_location=args.device)
     model.eval()
 
     input_audios = {}
@@ -87,6 +85,13 @@ if __name__ == "__main__":
         required=False,
         default="./tmp/se",
         help="Path to the output directory for writting enhanced speeches",
+    )
+    parser.add_argument(
+        "--ckpt_path",
+        type=str,
+        required=False,
+        default="./tmp/se",
+        help="Path to the checkpoint",
     )
     parser.add_argument(
         "--device",
