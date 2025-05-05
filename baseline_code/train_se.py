@@ -39,6 +39,7 @@ def config_parser():
         train_set_dynamic_mixing = True,
         valid_set_path = 'none',
         max_duration=192000,
+        use_high_pass = True,
     )
     parameters = vars(cfg)
 

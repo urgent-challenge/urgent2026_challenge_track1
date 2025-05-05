@@ -460,6 +460,7 @@ class AudioDataModule(lightning.LightningDataModule):
                 windnoise_scp=f'{self.train_dir}/wind_noise_scoures.scp',
                 retry_when_fails=True,
                 max_duration=config.max_duration,
+                use_high_pass=config.use_high_pass,
             )
         else:
             self.train_dataset = PreSimulatedDataset(
