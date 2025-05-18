@@ -69,7 +69,7 @@ def prepare_call_backs(cfg):
 
     best_metrics = [
         ('val_loss', 'min'),
-        ('val_sisnr', 'max'),]
+        ]
     call_backs = [LearningRateMonitor(logging_interval='epoch')]
     for i, (metric, min_or_max) in enumerate(best_metrics):
         call_back = ModelCheckpoint(
