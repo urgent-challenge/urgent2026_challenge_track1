@@ -15,7 +15,6 @@ class SGMSEModel(L.LightningModule):
 
         self.save_hyperparameters()
         self.cfg = cfg
-        self.nn = torch.nn.Linear(100, 100)
         self.se_model = SGMSE_BSRNN()
 
 
@@ -65,7 +64,7 @@ class SGMSEModel(L.LightningModule):
     def validation_step(self, batch):
         loss = self.forward_step(batch, stage='val')
 
-        return {'loss': loss.detach()}
+        return {'val_loss': loss.detach()}
 
     def configure_optimizers(self):
 
