@@ -15,7 +15,7 @@ class SGMSEModel(L.LightningModule):
 
         self.save_hyperparameters()
         self.cfg = cfg
-        self.se_model = SGMSE_BSRNN()
+        self.se_model = SGMSE_BSRNN(cfg)
 
 
     def on_before_optimizer_step(self, optimizer: Optimizer) -> None:

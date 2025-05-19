@@ -220,7 +220,7 @@ class BSRNN(nn.Module):
 
 class BSRNNScoreModel(ScoreModel):
 
-    def __init__(self, input_dim):
+    def __init__(self, input_dim, cfg):
         super(AbsDiffusion, self).__init__()
 
         self.dnn = BSRNN(input_dim=input_dim, 
@@ -228,7 +228,7 @@ class BSRNNScoreModel(ScoreModel):
                          num_layer=6,
                          target_fs=48000,
                          causal=False,
-                         num_channel=196)
+                         num_channel=cfg.bsrnn_hidden)
         self.sde = OUVESDE(
             sigma_min=0.05,
             sigma_max=0.5,
@@ -241,7 +241,7 @@ class BSRNNScoreModel(ScoreModel):
         
 
 class SGMSE_BSRNN(torch.nn.Module):
-    def __init__(self, ):
+    def __init__(self, cfg):
 
         super().__init__()
 
@@ -260,7 +260,7 @@ class SGMSE_BSRNN(torch.nn.Module):
         )
 
         self.diffusion = BSRNNScoreModel(
-            input_dim=self.encoder.output_dim
+            input_dim=self.encoder.output_dim, cfg=cfg,
         )
 
 
@@ -278,6 +278,20 @@ class SGMSE_BSRNN(torch.nn.Module):
         return loss
 
 
+    def enhance(self, noisy_speech, length, sr):
+
+        feats, flens = self.encoder(noisy_speech, length, sr)
+
+        self.diffusion.dnn.current_fs = sr
+
+        enhanced_spec = self.diffusion.enhance(feats,
+                                               snr=0.3,
+                                               N=50)
+
+        enhanced_speech, ilens = self.decoder(enhanced_spec, length, sr)
+
+        return enhanced_speech
+        pass
 
 
 

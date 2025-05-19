@@ -40,6 +40,7 @@ def config_parser():
         valid_set_path = 'none',
         max_duration=192000,
         use_high_pass = True,
+        bsrnn_hidden = 196,
     )
     parameters = vars(cfg)
 
