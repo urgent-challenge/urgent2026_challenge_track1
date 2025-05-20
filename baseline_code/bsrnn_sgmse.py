@@ -6,9 +6,84 @@ import torch
 from espnet2.enh.diffusion.sdes import OUVESDE, OUVPSDE, SDE
 from espnet2.enh.diffusion.score_based_diffusion import ScoreModel
 from espnet2.enh.diffusion.abs_diffusion import AbsDiffusion
-from espnet2.enh.layers.bsrnn import choose_norm, BandSplit, MaskDecoder, choose_norm1d
+from espnet2.enh.layers.bsrnn import choose_norm, MaskDecoder, choose_norm1d
+from itertools import accumulate
 
 import torch.nn as nn
+
+
+
+class BandSplit(nn.Module):
+    def __init__(self, input_dim, target_fs=48000, channels=128, norm_type="GN"):
+        super().__init__()
+        assert input_dim % 2 == 1, input_dim
+        n_fft = (input_dim - 1) * 2
+        # freq resolution = target_fs / n_fft = freqs[1] - freqs[0]
+        freqs = torch.fft.rfftfreq(n_fft, 1.0 / target_fs)
+        if input_dim == 481 and target_fs == 48000:
+            # n_fft=960 (20ms)
+            # first 20 200Hz subbands: [0-200], (200-400], (400-600], ..., (3800-4000]
+            # subsequent 6 500Hz subbands: (4000, 4500], ..., (6500, 7000]
+            # subsequent 7 2kHz subbands: (7000, 9000], ..., (19000, 21000]
+            # final 3kHz subband: (21000, 24000]
+            self.subbands = tuple([5] + [4] * 19 + [10] * 6 + [40] * 7 + [60])
+        elif input_dim == 769 and target_fs == 48000:
+            # n_fft=960 (20ms)
+            # first 20 200Hz subbands: [0-200], (200-400], (400-600], ..., (3800-4000]
+            # subsequent 6 500Hz subbands: (4000, 4500], ..., (6500, 7000]
+            # subsequent 7 2kHz subbands: (7000, 9000], ..., (19000, 21000]
+            # final 3kHz subband: (21000, 24000]
+            self.subbands = tuple([5] + [4] * 26 + [10] * 10 + [50] * 10 + [60])
+        else:
+            raise NotImplementedError(
+                f"Please define your own subbands for input_dim={input_dim} and "
+                f"target_fs={target_fs}"
+            )
+        assert sum(self.subbands) == input_dim, (self.subbands, input_dim)
+        self.subband_freqs = freqs[[idx - 1 for idx in accumulate(self.subbands)]]
+
+        self.norm = nn.ModuleList()
+        self.fc = nn.ModuleList()
+        for i in range(len(self.subbands)):
+            self.norm.append(choose_norm1d(norm_type, int(self.subbands[i] * 2)))
+            self.fc.append(nn.Conv1d(int(self.subbands[i] * 2), channels, 1))
+
+    def forward(self, x, fs=None):
+        """BandSplit forward.
+
+        Args:
+            x (torch.Tensor): input tensor of shape (B, T, F, 2)
+            fs (int, optional): sampling rate of the input signal.
+                if not None, the input signal will be truncated to only process the
+                effective frequency subbands.
+                if None, the input signal is assumed to be already truncated to only
+                contain effective frequency subbands.
+        Returns:
+            z (torch.Tensor): output tensor of shape (B, N, T, K')
+                K' might be smaller than len(self.subbands) if fs < self.target_fs.
+        """
+        hz_band = 0
+        for i, subband in enumerate(self.subbands):
+            x_band = x[:, :, hz_band : hz_band + int(subband), :]
+            if int(subband) > x_band.size(2):
+                x_band = nn.functional.pad(
+                    x_band, (0, 0, 0, int(subband) - x_band.size(2))
+                )
+            x_band = x_band.reshape(x_band.size(0), x_band.size(1), -1)
+            out = self.norm[i](x_band.transpose(1, 2))
+            # (B, band * 2, T) -> (B, N, T)
+            out = self.fc[i](out)
+
+            if i == 0:
+                z = out.unsqueeze(-1)
+            else:
+                z = torch.cat((z, out.unsqueeze(-1)), dim=-1)
+            hz_band = hz_band + int(subband)
+            if hz_band >= x.size(2):
+                break
+            if fs is not None and self.subband_freqs[i] >= fs / 2:
+                break
+        return z
 
 
 
@@ -257,7 +332,8 @@ class BSRNNScoreModel(ScoreModel):
                          num_channel=cfg.bsrnn_hidden if hasattr(cfg, 'bsrnn_hidden') else 196)
         self.sde = OUVESDE(
             sigma_min=0.05,
-            sigma_max=0.5,
+            sigma_max=1.0,
+            theta=2.0,
             N=1000,
         )
         self.loss_type = 'mse'
@@ -272,17 +348,21 @@ class SGMSE_BSRNN(torch.nn.Module):
         super().__init__()
 
         self.encoder = STFTEncoder(
-                    n_fft=960,
-                    hop_length=480,
+                    n_fft=1536,
+                    hop_length=384,
                     use_builtin_complex=True,
                     default_fs=48000,
                     spec_transform_type='exponent',
+                    spec_abs_exponent=0.667,
+                    spec_factor=0.065
                 )
         self.decoder = STFTDecoder(
-            n_fft=960,
-            hop_length=480,
+            n_fft=1536,
+            hop_length=384,
             default_fs=48000,
             spec_transform_type='exponent',
+            spec_abs_exponent=0.667,
+            spec_factor=0.065
         )
 
         self.diffusion = BSRNNScoreModel(
