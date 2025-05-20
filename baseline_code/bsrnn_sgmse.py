@@ -101,7 +101,7 @@ class GaussianFourierProjection(nn.Module):
 
 
 class GradDecoder(nn.Module):
-    def __init__(self, freq_dim, subbands, channels=128, num_spk=1, norm_type="GN"):
+    def __init__(self, freq_dim, subbands, channels=128, num_spk=1, norm_type="GN", sub_channel=32):
         super().__init__()
         assert freq_dim == sum(subbands), (freq_dim, subbands)
         self.subbands = subbands
@@ -110,22 +110,23 @@ class GradDecoder(nn.Module):
         assert num_spk == 1
         self.mlp_mask = nn.ModuleList()
         self.mlp_residual = nn.ModuleList()
-        self.conv_after_mask = torch.nn.Sequential(nn.Conv2d(channels, 4, 5, 1, 2), 
+        self.sub_channel = sub_channel
+        self.conv_after_mask = torch.nn.Sequential(nn.Conv2d(sub_channel, 4, 5, 1, 2), 
                                                    nn.GLU(dim=1),)
-        self.conv_after_residual = torch.nn.Sequential(nn.Conv2d(channels, 4, 5, 1, 2), 
+        self.conv_after_residual = torch.nn.Sequential(nn.Conv2d(sub_channel, 4, 5, 1, 2), 
                                                    nn.GLU(dim=1),)
         for subband in self.subbands:
             self.mlp_mask.append(
                 nn.Sequential(
                     choose_norm1d(norm_type, channels),
-                    nn.Conv1d(channels, subband * channels, 1),
+                    nn.Conv1d(channels, subband * sub_channel, 1),
                     nn.Tanh(),
                 )
             )
             self.mlp_residual.append(
                 nn.Sequential(
                     choose_norm1d(norm_type, channels),
-                    nn.Conv1d(channels, subband * channels, 1),
+                    nn.Conv1d(channels, subband * sub_channel, 1),
                     nn.Tanh(),
                     # nn.Conv1d(4 * channels, int(subband * 4 channels), 1),
                     # nn.GLU(dim=1),
@@ -147,13 +148,13 @@ class GradDecoder(nn.Module):
             if i >= x.size(-1):
                 break
             x_band = x[:, :, :, i]
-            out = self.mlp_mask[i](x_band).view(B,N, sub, T)
+            out = self.mlp_mask[i](x_band).view(B,self.sub_channel, sub, T)
             if i == 0:
                 m = out
             else:
                 m = torch.cat((m, out), dim=2)
 
-            res = self.mlp_residual[i](x_band).view(B,N, sub, T)
+            res = self.mlp_residual[i](x_band).view(B,self.sub_channel, sub, T)
             if i == 0:
                 r = res
             else:
