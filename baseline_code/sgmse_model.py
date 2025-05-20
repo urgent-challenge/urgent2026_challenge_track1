@@ -42,6 +42,9 @@ class SGMSEModel(L.LightningModule):
     def forward_step(self, batch, stage='train'):
 
         clean_speech, noisy_speech, fs, speech_length = batch
+        clean_speech = torch.nan_to_num(clean_speech, nan=0)
+        noisy_speech = torch.nan_to_num(noisy_speech, nan=0)
+        
         batch_size = len(clean_speech)
         B, C, T = clean_speech.shape
         assert C == 1
