@@ -32,15 +32,28 @@ class GradDecoder(nn.Module):
         self.subbands = subbands
         self.freq_dim = freq_dim
         self.num_spk = num_spk
-        self.mlp_grad = nn.ModuleList()
+        assert num_spk == 1
+        self.mlp_mask = nn.ModuleList()
+        self.mlp_residual = nn.ModuleList()
+        self.conv_after_mask = torch.nn.Sequential(nn.Conv2d(channels, 4, 5, 1, 2), 
+                                                   nn.GLU(dim=1),)
+        self.conv_after_residual = torch.nn.Sequential(nn.Conv2d(channels, 4, 5, 1, 2), 
+                                                   nn.GLU(dim=1),)
         for subband in self.subbands:
-            self.mlp_grad.append(
+            self.mlp_mask.append(
                 nn.Sequential(
                     choose_norm1d(norm_type, channels),
-                    nn.Conv1d(channels, 4 * channels, 1),
+                    nn.Conv1d(channels, subband * channels, 1),
                     nn.Tanh(),
-                    nn.Conv1d(4 * channels, int(subband * 4 * num_spk), 1),
-                    nn.GLU(dim=1),
+                )
+            )
+            self.mlp_residual.append(
+                nn.Sequential(
+                    choose_norm1d(norm_type, channels),
+                    nn.Conv1d(channels, subband * channels, 1),
+                    nn.Tanh(),
+                    # nn.Conv1d(4 * channels, int(subband * 4 channels), 1),
+                    # nn.GLU(dim=1),
                 )
             )
 
@@ -53,21 +66,30 @@ class GradDecoder(nn.Module):
             m (torch.Tensor): output mask of shape (B, num_spk, T, F, 2)
             r (torch.Tensor): output residual of shape (B, num_spk, T, F, 2)
         """
+        B, N, T, K = x.shape
         for i in range(len(self.subbands)):
+            sub = self.subbands[i]
             if i >= x.size(-1):
                 break
             x_band = x[:, :, :, i]
-            out = self.mlp_grad[i](x_band).transpose(1, 2).contiguous()
-            # (B, T, num_spk, subband, 2)
-            out = out.reshape(out.size(0), out.size(1), self.num_spk, -1, 2)
+            out = self.mlp_mask[i](x_band).view(B,N, sub, T)
             if i == 0:
                 m = out
             else:
-                m = torch.cat((m, out), dim=3)
+                m = torch.cat((m, out), dim=2)
 
+            res = self.mlp_residual[i](x_band).view(B,N, sub, T)
+            if i == 0:
+                r = res
+            else:
+                r = torch.cat((r, res), dim=2)
+
+        m = self.conv_after_mask(m)
+        r = self.conv_after_residual(r)
         # Pad zeros in addition to effective subbands to cover the full frequency range
         m = nn.functional.pad(m, (0, 0, 0, int(self.freq_dim - m.size(-2))))
-        return m.moveaxis(1, 2)
+        r = nn.functional.pad(r, (0, 0, 0, int(self.freq_dim - r.size(-2))))
+        return m.moveaxis(1, 3).contiguous(), r.moveaxis(1, 3).contiguous()
 
 
 class BSRNN(nn.Module):
@@ -208,10 +230,14 @@ class BSRNN(nn.Module):
             out = out.reshape(B, T, K, N).permute(0, 3, 1, 2).contiguous()
             skip = skip + out
 
-        g = self.grad_decoder(skip)
+        m, r  = self.grad_decoder(skip)
 
-        g = torch.view_as_complex(g)[:, :, :, 0:x.shape[-2]]
-        g = g.permute(0, 1, 3, 2)
+        x_t = dnn_input[:, 0, :, :]
+        B, F, T = x_t.shape
+        m = torch.view_as_complex(m)[:, 0:F, :]
+        r = torch.view_as_complex(r)[:, 0:F, :]
+        g = m*x_t + r
+        g = g.unsqueeze(1)
 
         return g
 
@@ -228,7 +254,7 @@ class BSRNNScoreModel(ScoreModel):
                          num_layer=6,
                          target_fs=48000,
                          causal=False,
-                         num_channel=cfg.bsrnn_hidden)
+                         num_channel=cfg.bsrnn_hidden if hasattr(cfg, 'bsrnn_hidden') else 196)
         self.sde = OUVESDE(
             sigma_min=0.05,
             sigma_max=0.5,

@@ -51,6 +51,10 @@ class SGMSEModel(L.LightningModule):
 
         loss = self.se_model.forward(noisy_speech, clean_speech, speech_length, fs)
 
+        if torch.isnan(loss):
+            print('NaN in loss has been decected, skip')
+            return torch.nan_to_num(loss, nan=0) * 0  # Skip current step
+
         self.log(f'{stage}_loss', loss.detach().item(),
                  on_step=True, prog_bar=True, batch_size=batch_size)
         return loss
