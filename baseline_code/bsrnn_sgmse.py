@@ -101,7 +101,7 @@ class GaussianFourierProjection(nn.Module):
 
 
 class GradDecoder(nn.Module):
-    def __init__(self, freq_dim, subbands, channels=128, num_spk=1, norm_type="GN", sub_channel=32):
+    def __init__(self, freq_dim, subbands, channels=128, num_spk=1, norm_type="GN", sub_channel=16):
         super().__init__()
         assert freq_dim == sum(subbands), (freq_dim, subbands)
         self.subbands = subbands
