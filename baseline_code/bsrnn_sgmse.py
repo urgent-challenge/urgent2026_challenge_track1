@@ -339,9 +339,67 @@ class BSRNNScoreModel(ScoreModel):
         )
         self.loss_type = 'mse'
         self.t_eps = 3e-2
+        self.likelihood_weighting = True
 
 
-        
+    def _loss(self, err):
+        losses = torch.square(err.abs())
+
+        if not self.likelihood_weighting:
+            loss = torch.mean(
+                0.5 * torch.mean(losses.reshape(losses.shape[0], -1), dim=-1)
+            )
+        else:
+            loss = 0.5 * torch.mean(losses.reshape(losses.shape[0], -1), dim=-1)
+        # taken from reduce_op function: sum over channels and position
+        # and mean over batch dim presumably only important for absolute
+        # loss number, not for gradients
+        return loss  
+    
+    def forward(
+        self,
+        feature_ref,
+        feature_mix,
+    ):
+        # feature_ref: B, T, F
+        # feature_mix: B, T, F
+        x = feature_ref.permute(0, 2, 1).unsqueeze(1)
+        y = feature_mix.permute(0, 2, 1).unsqueeze(1)
+
+        t = (
+            torch.rand(x.shape[0], device=x.device) * (self.sde.T - self.t_eps)
+            + self.t_eps
+        )
+        mean, std = self.sde.marginal_prob(x, t, y)
+        z = torch.randn_like(x)  # i.i.d. normal distributed with var=0.5
+        sigmas = std[:, None, None, None]
+        perturbed_data = mean + sigmas * z
+
+        score = self.score_fn(perturbed_data, t, y)
+        assert score.shape == x.shape, "Check the output shape of the score_fn."
+
+
+        if not self.likelihood_weighting:
+            err = score * sigmas + z
+            loss = self._loss(err)
+        else:
+            g2 = self.sde.sde(torch.zeros_like(x), t, y)[1] ** 2
+            err = score + z  / sigmas
+            loss = self._loss(err) * g2
+            loss = loss.mean()
+
+
+        debug = False
+        if debug:
+            import matplotlib.pyplot as plt
+            for tt in torch.linspace(1.0, 0.0, 30):
+                mean, std = self.sde.marginal_prob(x, tt*torch.ones_like(t), y=y)
+                z = torch.randn_like(x)  # i.i.d. normal distributed with var=0.5
+                sigmas = std[:, None, None, None]
+                perturbed_data = mean + sigmas * z
+                plt.imshow(abs(perturbed_data[0][0]).cpu().numpy())
+                plt.savefig(f'/tmp/a.{tt.item():.2f}.png')
+        return loss
 
 class SGMSE_BSRNN(torch.nn.Module):
     def __init__(self, cfg):
