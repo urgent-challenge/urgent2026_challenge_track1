@@ -39,6 +39,7 @@ def config_parser():
         train_set_dynamic_mixing = True,
         valid_set_path = 'none',
         max_duration=192000,
+        init_from = 'none',
         use_high_pass = True,
         bsrnn_hidden = 196,
     )
@@ -97,6 +98,14 @@ if __name__ == "__main__":
 
 
     model = SGMSEModel(cfg=cfg)
+
+    if cfg.init_from != 'none':
+        state_dict = torch.load(cfg.init_from, map_location="cpu")
+        if 'state_dict' in state_dict:
+            state_dict = state_dict['state_dict']
+        model.load_state_dict(state_dict)
+
+        print(f"Init param loaded from {cfg.init_from}")
 
     print(model)
 

@@ -332,8 +332,8 @@ class BSRNNScoreModel(ScoreModel):
                          causal=False,
                          num_channel=cfg.bsrnn_hidden if hasattr(cfg, 'bsrnn_hidden') else 196)
         self.sde = OUVESDE(
-            sigma_min=0.05,
-            sigma_max=1.0,
+            sigma_min=0.1,
+            sigma_max=2.0,
             theta=2.0,
             N=1000,
         )
@@ -450,7 +450,7 @@ class SGMSE_BSRNN(torch.nn.Module):
         self.diffusion.dnn.current_fs = sr
 
         enhanced_spec = self.diffusion.enhance(feats,
-                                               snr=0.3,
+                                               snr=0.1,
                                                N=50)
 
         enhanced_speech, ilens = self.decoder(enhanced_spec, length, sr)
