@@ -100,7 +100,7 @@ if __name__ == "__main__":
     model = SGMSEModel(cfg=cfg)
 
     if cfg.init_from != 'none':
-        state_dict = torch.load(cfg.init_from, map_location="cpu")
+        state_dict = torch.load(cfg.init_from, map_location="cpu", weights_only=True)
         if 'state_dict' in state_dict:
             state_dict = state_dict['state_dict']
         model.load_state_dict(state_dict)
