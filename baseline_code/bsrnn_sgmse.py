@@ -332,15 +332,33 @@ class BSRNNScoreModel(ScoreModel):
                          causal=False,
                          num_channel=cfg.bsrnn_hidden if hasattr(cfg, 'bsrnn_hidden') else 196)
         self.sde = OUVESDE(
-            sigma_min=0.1,
-            sigma_max=2.0,
-            theta=2.0,
+            sigma_min=cfg.sigma_min,
+            sigma_max=cfg.sigma_max,
+            theta=cfg.theta,
             N=1000,
         )
         self.loss_type = 'mse'
         self.t_eps = 3e-2
         self.likelihood_weighting = True
 
+        # self.x_d = None
+        self.guidance = -1
+
+    def score_fn(self, x, t, y):
+
+
+        # if t > 0.4 and self.x_d is not None:
+        #     mean, std = self.sde.marginal_prob(self.x_d, t, y)
+
+        #     score = (mean - x) / (std**2)
+        # else:
+        # Concatenate y as an extra channel
+        dnn_input = torch.cat([x, y], dim=1)
+
+        # the minus is most likely unimportant here - taken from Song's repo
+        score = -self.dnn(dnn_input, t)            
+        return score
+    
 
     def _loss(self, err):
         losses = torch.square(err.abs())
@@ -398,7 +416,7 @@ class BSRNNScoreModel(ScoreModel):
                 sigmas = std[:, None, None, None]
                 perturbed_data = mean + sigmas * z
                 plt.imshow(abs(perturbed_data[0][0]).cpu().numpy())
-                plt.savefig(f'/tmp/a.{tt.item():.2f}.png')
+                plt.savefig(f'/tmp/debug_foward.{tt.item():.2f}.png')
         return loss
 
 class SGMSE_BSRNN(torch.nn.Module):
@@ -450,7 +468,7 @@ class SGMSE_BSRNN(torch.nn.Module):
         self.diffusion.dnn.current_fs = sr
 
         enhanced_spec = self.diffusion.enhance(feats,
-                                               snr=0.1,
+                                               snr=0.2,
                                                N=50)
 
         enhanced_speech, ilens = self.decoder(enhanced_spec, length, sr)

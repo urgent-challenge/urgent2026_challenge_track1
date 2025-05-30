@@ -42,6 +42,9 @@ def config_parser():
         init_from = 'none',
         use_high_pass = True,
         bsrnn_hidden = 196,
+        theta = 1.5,
+        sigma_max=0.5,
+        sigma_min=0.05
     )
     parameters = vars(cfg)
 
