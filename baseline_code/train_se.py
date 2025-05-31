@@ -38,6 +38,7 @@ def config_parser():
         train_set_path = 'none',
         train_set_dynamic_mixing = True,
         valid_set_path = 'none',
+        init_from = 'none',
         max_duration=192000,
         use_high_pass = True,
     )
@@ -96,6 +97,16 @@ if __name__ == "__main__":
 
 
     model = SEModel(cfg=cfg)
+
+
+    if cfg.init_from != 'none':
+        state_dict = torch.load(cfg.init_from, map_location="cpu", weights_only=False)
+        if 'state_dict' in state_dict:
+            state_dict = state_dict['state_dict']
+        model.load_state_dict(state_dict)
+
+        print(f"Init param loaded from {cfg.init_from}")
+
 
     print(model)
 
