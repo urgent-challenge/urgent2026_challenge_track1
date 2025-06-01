@@ -13,6 +13,7 @@ import torch.multiprocessing as mp
 from baseline_code.flow_model import FlowSEModel
 from baseline_code.config import Config
 from baseline_code.dataset import AudioDataModule
+from collections import OrderedDict
 
 def config_parser():
     cfg = Config(
@@ -113,8 +114,15 @@ if __name__ == "__main__":
         state_dict = torch.load(cfg.init_from, map_location="cpu", weights_only=False)
         if 'state_dict' in state_dict:
             state_dict = state_dict['state_dict']
-        model.load_state_dict(state_dict)
+        
+        new_state_dic = OrderedDict()
+        for k, v in state_dict.items():
+            if 'se_model.diffusion.dnn' in k:
+                new_k = k.replace('se_model.diffusion.dnn', 'dnn')
+                new_state_dic[new_k] = v
+        model.load_state_dict(new_state_dic)
 
+        del state_dict
         print(f"Init param loaded from {cfg.init_from}")
 
     print(model)
