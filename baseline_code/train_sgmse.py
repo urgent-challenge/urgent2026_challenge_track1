@@ -9,7 +9,8 @@ from argparse import ArgumentParser
 from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import  ModelCheckpoint,LearningRateMonitor
 import torch.multiprocessing as mp
-from baseline_code.sgmse_model import SGMSEModel
+# from baseline_code.sgmse_model import SGMSEModel
+from baseline_code.flow_model import FlowSEModel
 from baseline_code.config import Config
 from baseline_code.dataset import AudioDataModule
 
@@ -44,7 +45,13 @@ def config_parser():
         bsrnn_hidden = 196,
         theta = 1.5,
         sigma_max=0.5,
-        sigma_min=0.05
+        sigma_min=0.05,
+        ema_decay=0.999,
+        t_eps=0.03,
+        T_rev=1.0,
+        loss_type='mse',
+        loss_abs_exponent=0.5,
+
     )
     parameters = vars(cfg)
 
@@ -100,7 +107,7 @@ if __name__ == "__main__":
     L.seed_everything(seed=cfg.seed)
 
 
-    model = SGMSEModel(cfg=cfg)
+    model = FlowSEModel(cfg=cfg)
 
     if cfg.init_from != 'none':
         state_dict = torch.load(cfg.init_from, map_location="cpu", weights_only=False)

@@ -468,7 +468,7 @@ class SGMSE_BSRNN(torch.nn.Module):
         self.diffusion.dnn.current_fs = sr
 
         enhanced_spec = self.diffusion.enhance(feats,
-                                               snr=0.2,
+                                               snr=0.3,
                                                N=50)
 
         enhanced_speech, ilens = self.decoder(enhanced_spec, length, sr)
