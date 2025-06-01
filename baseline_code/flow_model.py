@@ -171,7 +171,7 @@ class FlowSEModel(L.LightningModule):
         vectorfield = self(xt, t, y)
         loss = self._loss(vectorfield, condVF)
 
-        debug = True
+        debug = False
         if debug:
             import matplotlib.pyplot as plt
             for tt in torch.linspace(0.99, 0.0, 30):
