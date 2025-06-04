@@ -186,7 +186,7 @@ class FlowSEModel(L.LightningModule):
 
         return loss
     
-    def enhance(self, y, fs, speech_length, N=10):
+    def enhance(self, y, fs, speech_length, N=15):
         # y: B, T
 
         Y = self.speech_to_feature(y, fs, speech_length)

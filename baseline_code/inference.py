@@ -7,7 +7,7 @@ import soxr
 import torch
 from tqdm import tqdm
 from baseline_code.model import SEModel
-from baseline_code.sgmse_model import SGMSEModel
+from baseline_code.flow_model import FlowSEModel
 import os
 import tqdm
 
@@ -30,7 +30,7 @@ def main(args):
     try:
         model = SEModel.load_from_checkpoint(args.ckpt_path, map_location=args.device)
     except:
-        model = SGMSEModel.load_from_checkpoint(args.ckpt_path, map_location=args.device)
+        model = FlowSEModel.load_from_checkpoint(args.ckpt_path, map_location=args.device)
     model.eval()
 
     input_audios = {}
@@ -54,8 +54,8 @@ def main(args):
             with torch.no_grad():
                 if isinstance(model, SEModel):
                     enhanced, _ = model.se_model(wav, length, sr)
-                elif isinstance(model, SGMSEModel):
-                    enhanced = model.se_model.enhance(wav, length, sr)
+                elif isinstance(model, FlowSEModel):
+                    enhanced = model.enhance(wav, sr, length)
 
                 enhanced = enhanced / enhanced.abs().max() * 0.9
 
