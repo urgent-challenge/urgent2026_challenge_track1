@@ -6,9 +6,9 @@ import torch
 
 
 
-class BSRNN(torch.nn.Module):
+class BSRNN_SE(torch.nn.Module):
 
-    def __init__(self, ):
+    def __init__(self, num_channel=192, num_layer=6):
         super().__init__()
 
         self.encoder = STFTEncoder(
@@ -27,8 +27,8 @@ class BSRNN(torch.nn.Module):
         self.bsrnn = BSRNNSeparator(
             input_dim=self.encoder.output_dim,
             num_spk=1,
-            num_channels=196,
-            num_layers=6,
+            num_channels=num_channel,
+            num_layers=num_layer,
             target_fs=48000,
             causal=False,
         )

@@ -1,5 +1,8 @@
-# Adapted from https://github.com/yang-song/score_sde_pytorch/blob/1618ddea340f3e4a2ed7852a0694a809775cf8d0/sampling.py
-"""Various sampling methods."""
+"""
+Taken and adapted from https://github.com/seongq/flowmse, 
+the official PyTorch implementations for the ICASSP 2025 paper:
+FlowSE: Flow Matching-based Speech Enhancement
+"""
 from scipy import integrate
 import torch
 

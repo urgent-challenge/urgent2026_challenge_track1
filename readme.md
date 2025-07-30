@@ -3,7 +3,13 @@
 
 ### Setup:
 ```
-pip install espnet
+# Set up the python environment
+conda create -n urgent2026_baseline python=3.10 
+conda activate urgent2026_baseline
+
+# Install the baseline code
+git clone --recursive git@github.com:urgent-challenge/urgent2026_challenge.git
+cd urgent2026_challenge
 pip install -e ./
 ```
 
@@ -27,42 +33,26 @@ By default, this script will generate a simulated validation set in `./data/vali
 
 
 ### Training
+Train discriminative baseline SE models:
+```bash 
+python baseline_code/train_se.py  --config_file conf/models/BSRNN_baseline.yaml
+```
+
+Train generative FLOW SE models:
+
+```bash 
+python baseline_code/train_se.py  --config_file conf/models/BSRNN_flowse.yaml
+```
+
+
 Train with dynamic mixing:
-```bash 
-python baseline_code/train_se.py \
---train_tag run_baseline_bsrnn \
---batch_size 2 \
---train_set_path data/train_sources \
---valid_set_path data/validation \
---val_check_interval 10000
-```
 
-
-Train without dynamic mixing:
+Set `train_set_dynamic_mixing: True` and  `train_set_path: ./data/train_sources` in config files:
 
 ```bash 
-python baseline_code/train_se.py \
---train_tag run_baseline_bsrnn \
---batch_size 2 \
---train_set_path data/train \
---valid_set_path data/validation \
---train_set_dynamic_mixing False \
---val_check_interval 10000
+python baseline_code/train_se.py  --config_file conf/models/BSRNN_baseline_dm.yaml
 ```
-
-If dynamic mixing is not used, a ESPnet-like training set should be used:
-```
-data/train
-├── speech_length.scp
-├── spk1.scp
-├── spk2utt (not used)
-├── text (not used)
-├── utt2category (not used)
-├── utt2fs
-├── utt2lang (not used)
-├── utt2spk (not used)
-└── wav.scp
-```
+If there is an error message prompting `Failed to intialize FFmpeg extension.` Please make sure FFmpeg has been installed in your machine, and try `conda install ffmpeg`.
 
 ### Inference:
 

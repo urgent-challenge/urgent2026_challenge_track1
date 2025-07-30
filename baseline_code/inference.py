@@ -6,7 +6,7 @@ import soundfile as sf
 import soxr
 import torch
 from tqdm import tqdm
-from baseline_code.model import SEModel
+from baseline_code.d_model import SEModel
 from baseline_code.flow_model import FlowSEModel
 import os
 import tqdm

@@ -1,14 +1,14 @@
 from typing import Any
-import lightning as L
+import pytorch_lightning as L
 from torch.optim.optimizer import Optimizer
 # from transformers import AdamW, get_linear_schedule_with_warmup
 import torch
 import torchaudio
-from baseline_code.bsrnn_sgmse import BSRNN
+from baseline_code.models.bsrnn_flowse import BSRNN
 from baseline_code.config import Config 
 from espnet2.enh.loss.criterions.time_domain import SISNRLoss, MultiResL1SpecLoss
 from torch_ema import ExponentialMovingAverage
-from odes import FLOWMATCHING
+from baseline_code.models.odes import FLOWMATCHING
 from espnet2.enh.encoder.stft_encoder import STFTEncoder
 from espnet2.enh.decoder.stft_decoder import STFTDecoder
 
@@ -22,31 +22,31 @@ class FlowSEModel(L.LightningModule):
 
         self.save_hyperparameters()
         self.cfg = cfg
-        self.ode = FLOWMATCHING(sigma_min=0, sigma_max=0.5)
+        self.ode = FLOWMATCHING(sigma_min=cfg.sigma_min, sigma_max=cfg.sigma_max)
         self.encoder = STFTEncoder(
-                    n_fft=1536,
-                    hop_length=384,
+                    n_fft=cfg.n_fft,
+                    hop_length=cfg.hop_length,
                     use_builtin_complex=True,
                     default_fs=48000,
-                    spec_transform_type='exponent',
-                    spec_abs_exponent=0.667,
-                    spec_factor=0.065
+                    spec_transform_type=cfg.spec_transform_type,
+                    spec_abs_exponent=cfg.spec_abs_exponent,
+                    spec_factor=cfg.spec_factor
                 )
         self.decoder = STFTDecoder(
-            n_fft=1536,
-            hop_length=384,
+            n_fft=cfg.n_fft,
+            hop_length=cfg.hop_length,
             default_fs=48000,
             spec_transform_type='exponent',
-            spec_abs_exponent=0.667,
-            spec_factor=0.065
+            spec_abs_exponent=cfg.spec_abs_exponent,
+            spec_factor=cfg.spec_factor
         )
 
         self.dnn = BSRNN(input_dim=self.encoder.output_dim, 
                          num_spk=1,
-                         num_layer=6,
+                         num_layer=cfg.num_layer,
                          target_fs=48000,
                          causal=False,
-                         num_channel=cfg.bsrnn_hidden if hasattr(cfg, 'bsrnn_hidden') else 196)
+                         num_channel=cfg.bsrnn_hidden)
         
         self.lr = cfg.learning_rate
         self.ema_decay = cfg.ema_decay

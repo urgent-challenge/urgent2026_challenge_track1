@@ -1,21 +1,30 @@
 from typing import Any
-import lightning as L
+import pytorch_lightning as L
 from torch.optim.optimizer import Optimizer
 # from transformers import AdamW, get_linear_schedule_with_warmup
 import torch
 import torchaudio
-from baseline_code.bsrnn_sgmse import SGMSE_BSRNN
+from baseline_code.models import *
 from baseline_code.config import Config 
 from espnet2.enh.loss.criterions.time_domain import SISNRLoss, MultiResL1SpecLoss
 
 
-class SGMSEModel(L.LightningModule):
+class SEModel(L.LightningModule):
     def __init__(self, cfg: Config):
         super().__init__()
 
         self.save_hyperparameters()
         self.cfg = cfg
-        self.se_model = SGMSE_BSRNN(cfg)
+        
+        if self.cfg.se_model == "bsrnn":
+            self.se_model = BSRNN_SE(** self.cfg.model_configs)
+        else:
+            self.se_model = None
+            raise TypeError
+        self.mr_l1_loss = MultiResL1SpecLoss(window_sz=[256, 512, 768, 1024], eps = 1.0e-6,normalize_variance=True, time_domain_weight=0.5)
+        self.sisnr_loss = SISNRLoss()
+
+
 
 
     def on_before_optimizer_step(self, optimizer: Optimizer) -> None:
@@ -25,6 +34,16 @@ class SGMSEModel(L.LightningModule):
         return
     
     def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_closure=None):
+
+
+        all_norm = 0.
+        all_size = 1e-5
+        for n, p in self.named_parameters():
+            if p.grad is not None and  not torch.isnan(p.grad).any():
+                all_norm += p.grad.norm().item() * p.view(-1).size()[0]
+                all_size += p.view(-1).size()[0]
+        self.log(f'Grad_norm', all_norm/all_size)
+
 
         # check if has grad of NaN
         grad_has_nan = any(
@@ -42,9 +61,6 @@ class SGMSEModel(L.LightningModule):
     def forward_step(self, batch, stage='train'):
 
         clean_speech, noisy_speech, fs, speech_length = batch
-        clean_speech = torch.nan_to_num(clean_speech, nan=0)
-        noisy_speech = torch.nan_to_num(noisy_speech, nan=0)
-        
         batch_size = len(clean_speech)
         B, C, T = clean_speech.shape
         assert C == 1
@@ -52,14 +68,24 @@ class SGMSEModel(L.LightningModule):
         noisy_speech = noisy_speech.view(B, T).float()
 
 
-        loss = self.se_model.forward(noisy_speech, clean_speech, speech_length, fs)
+        se_speech = self.se_model(noisy_speech, speech_length, fs)[0]
 
+
+        loss = self.mr_l1_loss(clean_speech, se_speech).mean()
         if torch.isnan(loss):
             print('NaN in loss has been decected, skip')
-            return torch.nan_to_num(loss, nan=0) * 0  # Skip current step
+            return se_speech.mean() * 0  # Skip current step
+
+        with torch.no_grad():
+            sisnr_loss = self.sisnr_loss(clean_speech, se_speech).mean()
 
         self.log(f'{stage}_loss', loss.detach().item(),
                  on_step=True, prog_bar=True, batch_size=batch_size)
+        self.log(f'{stage}_sisnr', - sisnr_loss.detach().item(),
+                 on_step=True, prog_bar=True, batch_size=batch_size)
+        self.log(f'{stage}_sisnr_{fs}', - sisnr_loss.detach().item(),
+                 on_step=True, prog_bar=True, batch_size=batch_size)
+        
         return loss
 
     def training_step(self, batch):
@@ -71,7 +97,7 @@ class SGMSEModel(L.LightningModule):
     def validation_step(self, batch):
         loss = self.forward_step(batch, stage='val')
 
-        return {'val_loss': loss.detach()}
+        return {'loss': loss.detach()}
 
     def configure_optimizers(self):
 

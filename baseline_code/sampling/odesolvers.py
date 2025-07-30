@@ -1,5 +1,9 @@
+"""
+Taken and adapted from https://github.com/seongq/flowmse, 
+the official PyTorch implementations for the ICASSP 2025 paper:
+FlowSE: Flow Matching-based Speech Enhancement
+"""
 import abc
-
 import torch
 import numpy as np
 from typing import Callable

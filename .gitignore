@@ -27,9 +27,12 @@ doc/vuepress/src/.vuepress/.temp
 doc/vuepress/src/.vuepress/.cache
 dist
 simulation_train/
+simulation_train
 simulation_tmp/
 simulation_validation/
-
+simulation_validation
+*.egg-info/
+data
 exp/
 data/
 *.tgz

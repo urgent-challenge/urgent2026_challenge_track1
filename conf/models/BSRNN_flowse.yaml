@@ -1,0 +1,54 @@
+
+train_set_path : data/train_simulation
+train_set_dynamic_mixing : False
+valid_set_path : data/validation
+val_check_interval : 5000
+max_duration: 96000
+use_high_pass : True
+batch_size: 2
+num_worker : 2
+
+
+device : "cuda"
+num_gpu : 1
+
+learning_rate: 1.e-4
+lr_step_size : 1
+lr_gamma : 0.85
+gradient_clip : 0.5
+weight_decay: 1.e-6
+adam_epsilon : 1.e-8
+num_train_epochs : 80
+
+
+train_version : 0
+train_name : 'baseline_flow'
+save_top_k : 5
+resume : True
+seed : 20250
+
+
+## flow related
+ema_decay: 0.999
+theta: 1.5
+sigma_max: 0.5
+sigma_min: 0.05
+t_eps: 0.03
+T_rev: 1.0
+loss_type: 'mse'
+loss_abs_exponent: 0.5
+
+
+# STFT
+n_fft: 1536
+hop_length: 384
+spec_transform_type: 'exponent'
+spec_abs_exponent: 0.667
+spec_factor: 0.065
+
+# BSRNN
+model_type: "flowse"
+init_from : 'none'
+bsrnn_hidden: 192
+num_layer: 6 
+

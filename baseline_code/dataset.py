@@ -3,7 +3,7 @@ import glob
 import itertools
 import soundfile
 import torchaudio
-import lightning
+import pytorch_lightning
 import os
 from collections import defaultdict
 import numpy as np
@@ -441,7 +441,7 @@ def collate_fn(batch):
     return padded_audios, padded_noisy_speech, torch.tensor(sr, dtype=torch.int32), torch.tensor(lengths, dtype=torch.int32)
 
 
-class AudioDataModule(lightning.LightningDataModule):
+class AudioDataModule(pytorch_lightning.LightningDataModule):
     def __init__(self, config: Config):
         super().__init__()
         self.config = config
@@ -458,7 +458,7 @@ class AudioDataModule(lightning.LightningDataModule):
                 speech_length_file=f'{self.train_dir}/source_length.scp',
                 rir_scp=f'{self.train_dir}/rirs.scp',
                 windnoise_scp=f'{self.train_dir}/wind_noise_scoures.scp',
-                retry_when_fails=True,
+                retry_when_fails=False,
                 max_duration=config.max_duration,
                 use_high_pass=config.use_high_pass,
             )

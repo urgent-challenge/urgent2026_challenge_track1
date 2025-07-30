@@ -1,0 +1,8 @@
+{
+    "exclude": [
+      "urgent2025_challenge",
+      "data/",
+      "simulation_train",
+      "simulation_validation",
+    ]
+  }
