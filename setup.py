@@ -18,7 +18,8 @@ install_requires = [
     "espnet==202412",
     "tensorboard==2.20.0",
     "ffmpeg==1.4",
-    "soxr==0.5.0"
+    "soxr==0.5.0",
+    "gdown==5.2.0"
 ]
 
 setup(

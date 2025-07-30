@@ -36,4 +36,5 @@ data
 exp/
 data/
 *.tgz
+downloads/
 

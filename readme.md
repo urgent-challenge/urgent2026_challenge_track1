@@ -16,7 +16,7 @@ pip install -e ./
 ### Training Set Preparation
 
 Check the script `utils/prepare_train_data.sh`  and set `urgent25_path` in it with the path to the `urgent2025_challenge` project in your system. 
-This script assumes you have already run `prepare_espnet_data.sh` in the `urgent2025_challenge` project.
+This script assumes you have already run `prepare_espnet_data.sh` in the [urgent2025_challenge](https://github.com/urgent-challenge/urgent2025_challenge/) project.
 
 ```bash 
 bash utils/prepare_train_data.sh
