@@ -26,7 +26,20 @@ touch "${output_dir}"/download_NNCES.done
 #################################
 # Data preprocessing
 #################################
+
+find "${output_dir}" -type f | while read -r file; do
+    dir=$(dirname "$file")
+    base=$(basename "$file")
+    new_base=$(echo "$base" | sed 's/[ ()]/_/g')
+    if [[ "$base" != "$new_base" ]]; then
+        mv "$file" "$dir/$new_base"
+        echo "Renamed: $file -> $dir/$new_base"
+    fi
+done
+
+
 mkdir -p tmp
+
 
 BW_EST_FILE=tmp/NNCES.json
 BW_EST_FILE_JSON_GZ="datafiles/NNCES/NNCES.json.gz"

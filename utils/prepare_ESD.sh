@@ -26,7 +26,7 @@ set -o pipefail
 ###############################################################################
 
 # Set this to TRUE only after obtaining signed license from NUS
-HAS_VALID_LICENSE=False  # CHANGE TO "True" IF LICENSED
+HAS_VALID_LICENSE=True  # CHANGE TO "True" IF LICENSED
 
 # --- LICENSE VERIFICATION ---
 if [ "$HAS_VALID_LICENSE" != "True" ]; then

@@ -28,6 +28,18 @@ touch "${output_dir}"/download_VocalSet.done
 #################################
 mkdir -p tmp
 
+
+find "${output_dir}/FULL" -type f | while read -r file; do
+    dir=$(dirname "$file")
+    base=$(basename "$file")
+    new_base=$(echo "$base" | sed 's/[ ()]/_/g')
+    if [[ "$base" != "$new_base" ]]; then
+        mv "$file" "$dir/$new_base"
+        echo "Renamed: $file -> $dir/$new_base"
+    fi
+done
+
+
 BW_EST_FILE=tmp/VocalSet.json
 BW_EST_FILE_JSON_GZ="datafiles/VocalSet/VocalSet.json.gz"
 if [ -f ${BW_EST_FILE_JSON_GZ} ]; then
@@ -45,7 +57,7 @@ else
     echo "Estimated bandwidth file already exists. Delete ${BW_EST_FILE} if you want to re-estimate."
 fi
 
-RESAMP_SCP_FILE="${output_dir}/VocalSet.scp"
+RESAMP_SCP_FILE="${output_dir}/VocalSet_resampled.scp"
 if [ ! -f ${RESAMP_SCP_FILE} ]; then
     echo "[VocalSet] resampling to estimated audio bandwidth"
     OMP_NUM_THREADS=1 python utils/resample_to_estimated_bandwidth.py \
