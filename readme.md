@@ -57,15 +57,17 @@ If there is an error message prompting `Failed to intialize FFmpeg extension.` P
 ## Pretrained models
 
 We have provided pretrained model checkpoints for both BSRNN and BSRNN-Flow. 
-The training data `700h-TBF` is a subset of the ICASSP 2026 URGENT challenge, and the detailed discription about it can be found in our recent [paper](https://arxiv.org/abs/2506.23859). 
+The training data `700h-TBF` is a subset of the ICASSP 2026 URGENT challenge, and the detailed description about it can be found in our recent [paper](https://arxiv.org/abs/2506.23859). 
 
 | Model | Training Data |Download|
-|:-----:|:------:|
+|:-----:|:------:|:------:|
 |BSRNN | 700h-TBF |[Huggingface 🤗](https://huggingface.co/lichenda/icassp_2026_urgent_baseline/resolve/main/bsrnn.ckpt)|
 |BSRNN-Flow | 700h-TBF |[Huggingface 🤗](https://huggingface.co/lichenda/icassp_2026_urgent_baseline/resolve/main/flow_bsrnn.ckpt)|
 
 
 ### Inference:
+
+After downloading the checkpoints we provide or completing your own training, you can run the following script for speech enhancemnet.
 
 ```bash
 python baseline_code/inference.py --input_scp [path_to_input_scp] --output [output_dir] --ckpt_path [path_to_checkpoint]
