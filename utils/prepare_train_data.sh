@@ -67,15 +67,17 @@ for key in ${!subsets[@]}; do
         echo "${urgent25_path}/${subsets[${key}]} not found, make sure you have URGENT25 dataset prepared"
         exit -1 
     fi
-    cp ${urgent25_path}/${subsets[${key}]}.scp data/tmp/train_sources/`basename ${urgent25_path}/${subsets[${key}]}.scp`
+    cat ${urgent25_path}/${subsets[${key}]}.scp | awk -v pwd="${urgent25_path}" '{ if ($3 !~ /^\//) { sub(/^\.\//, "", $3); $3 = pwd "/" $3 } print }' >   data/tmp/train_sources/`basename ${urgent25_path}/${subsets[${key}]}.scp`
 done
 
 cat data/tmp/train_sources/*.scp > data/tmp/train_sources/all_scp
 
 
-./utils/filter_scp.pl meta/train_urgent2026  data/tmp/train_sources/all_scp | awk -v pwd="${urgent25_path}" '{ if ($3 !~ /^\//) { sub(/^\.\//, "", $3); $3 = pwd "/" $3 } print }'   >  ${train_source_output}/speech_sources.scp
+./utils/filter_scp.pl meta/train_urgent2026  data/tmp/train_sources/all_scp  >  ${train_source_output}/speech_sources.scp
 
-
+awk '{print $1" "$1}' ${train_source_output}/speech_sources.scp >  ${train_source_output}/utt2spk
+awk '{print $1" "$1}' ${train_source_output}/speech_sources.scp >  ${train_source_output}/spk2utt
+touch data/train_sources/text
 
 python utils/utt2numsamples.py --input_scp ${train_source_output}/speech_sources.scp --outfile ${train_source_output}/source_length.scp
 
