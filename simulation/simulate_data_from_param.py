@@ -27,33 +27,28 @@ from scipy.signal import firwin2,filtfilt
 
 
 def filter_designs(fs, cutoff=70, transition_width=15, attenuation=10):
-    # 计算Nyquist频率
+    # Nyquist
     nyq = 0.5 * fs
     
-    # 计算阻带截止频率并处理边界情况
     stop = cutoff - transition_width
     if stop < 0:
         stop = 0
-        transition_width = cutoff  # 过渡带宽调整为截止频率
+        transition_width = cutoff 
     
-    # 通带截止频率不超过Nyquist
     pass_start = cutoff
     if pass_start > nyq:
         pass_start = nyq
     
-    # 归一化频率点
     norm_stop = stop / nyq
     norm_pass = pass_start / nyq
     freq_points = [0, norm_stop, norm_pass, 1.0]
     gain_points = [0, 0, 1, 1]
     
-    # 根据过渡带宽和采样率计算滤波器阶数（确保足够陡峭）
-    # 公式参考：numtaps ≈ (attenuation * fs) / (22 * transition_width)
+    # numtaps ≈ (attenuation * fs) / (22 * transition_width)
     numtaps = int((attenuation * fs) / (22 * transition_width))
-    numtaps = max(numtaps, 101)  # 至少101个tap
-    if numtaps % 2 == 0:  # 确保奇数长度
+    numtaps = max(numtaps, 101)  
+    if numtaps % 2 == 0:  
         numtaps += 1
-    # 设计滤波器系数
     taps = firwin2(numtaps, freq=freq_points, gain=gain_points)
 
     return taps
