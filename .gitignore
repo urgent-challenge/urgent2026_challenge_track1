@@ -37,4 +37,6 @@ exp/
 data/
 *.tgz
 downloads/
+baseline_ckpts/
+urgent_submissions_track1/
 

@@ -49,6 +49,6 @@ spec_factor: 0.065
 # BSRNN
 model_type: "flowse"
 init_from : 'none'
-bsrnn_hidden: 192
+bsrnn_hidden: 384
 num_layer: 6 
 
