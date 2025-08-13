@@ -4,12 +4,12 @@
 ### Setup:
 ```
 # Set up the python environment
-conda create -n urgent2026_baseline python=3.10 
-conda activate urgent2026_baseline
+conda create -n urgent2026_baseline_track1 python=3.10 
+conda activate urgent2026_baseline_track1
 
 # Install the baseline code
-git clone --recursive git@github.com:urgent-challenge/urgent2026_challenge.git
-cd urgent2026_challenge
+git clone --recursive git@github.com:urgent-challenge/urgent2026_challenge_track1.git
+cd urgent2026_challenge_track1
 pip install -e ./
 ```
 

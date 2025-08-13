@@ -75,6 +75,7 @@ cat data/tmp/train_sources/*.scp > data/tmp/train_sources/all_scp
 
 ./utils/filter_scp.pl meta/train_urgent2026  data/tmp/train_sources/all_scp  >  ${train_source_output}/speech_sources.scp
 
+
 awk '{print $1" "$1}' ${train_source_output}/speech_sources.scp >  ${train_source_output}/utt2spk
 awk '{print $1" "$1}' ${train_source_output}/speech_sources.scp >  ${train_source_output}/spk2utt
 touch data/train_sources/text
