@@ -54,6 +54,17 @@ python baseline_code/train_se.py  --config_file conf/models/BSRNN_baseline_dm.ya
 ```
 If there is an error message prompting `Failed to intialize FFmpeg extension.` Please make sure FFmpeg has been installed in your machine, and try `conda install ffmpeg`.
 
+## Pretrained models
+
+We have provided pretrained model checkpoints for both BSRNN and BSRNN-Flow. 
+The training data `700h-TBF` is a subset of the ICASSP 2026 URGENT challenge, and the detailed discription about it can be found in our recent [paper](https://arxiv.org/abs/2506.23859). 
+
+| Model | Training Data |Download|
+|:-----:|:------:|
+|BSRNN | 700h-TBF |[Huggingface 🤗](https://huggingface.co/lichenda/icassp_2026_urgent_baseline/resolve/main/bsrnn.ckpt)|
+|BSRNN-Flow | 700h-TBF |[Huggingface 🤗](https://huggingface.co/lichenda/icassp_2026_urgent_baseline/resolve/main/flow_bsrnn.ckpt)|
+
+
 ### Inference:
 
 ```bash
