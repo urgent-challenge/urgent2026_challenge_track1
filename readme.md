@@ -21,7 +21,30 @@ This script assumes you have already run `prepare_espnet_data.sh` in the [urgent
 ```bash 
 bash utils/prepare_train_data.sh
 ```
-By default, this script will generate a simulated training set in `./data/train_simulation`, and a dynamic mixing training set in `./data/train_sources`.
+By default, this script will generate a pre-simulated training set in `./data/train_simulation`, and a dynamic mixing training set in `./data/train_sources`.
+
+The first is the pre-simulated data, which has the following form of directory structure:
+```bash
+data/train_simulation/
+├── speech_length.scp # Speech duration in number of sample points.
+├── spk1.scp # Clean speech file list of id and audio path.
+├── utt2fs  # id to sampling rate mapping
+├── utt2spk # utterance to speaker mapping 
+└── wav.scp # Noisy speech file list of id and audio path.
+```
+The pre-simulated dataset can be loaded by the `PreSimulatedDataset` in the [baseline code](https://github.com/urgent-challenge/urgent2026_challenge_track1/blob/main/baseline_code/dataset.py) .
+
+We also provided a `DynamicMixingDataset` class in the [baseline code](https://github.com/urgent-challenge/urgent2026_challenge_track1/blob/main/baseline_code/dataset.py) for loading data in a dynamic mixing manner.
+The dataset has the following form of directory structure:
+
+```bash
+data/train_sources
+├── noise_scoures.scp # Noise audio id and audio path.
+├── rirs.scp # Room impulse response id and audio path.
+├── source_length.scp # Speech duration in number of sample points.
+├── speech_sources.scp # Clean speech id and audio path.
+└── wind_noise_scoures.scp # # Wind noise audio id and audio path.
+```
 
 ### Validation Set Preparation
 
