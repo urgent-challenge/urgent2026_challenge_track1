@@ -7,8 +7,7 @@ set -u
 set -o pipefail
 
 
-## replace urgent25_path with your urgent2025_challenge path
-## This script assume you have alrealy run the 'prepare_espnet_data.sh'
+## replace urgent25_path with your urgent2025_challenge path ## This script assume you have alrealy run the 'prepare_espnet_data.sh'
 ## in urgent2025_challenge project
 urgent25_path="/mnt/rexp/urgent2025_challenge"
 train_source_output=./data/train_sources
@@ -80,8 +79,9 @@ awk '{print $1" "$1}' ${train_source_output}/speech_sources.scp >  ${train_sourc
 awk '{print $1" "$1}' ${train_source_output}/speech_sources.scp >  ${train_source_output}/spk2utt
 touch data/train_sources/text
 
-python utils/utt2numsamples.py --input_scp ${train_source_output}/speech_sources.scp --outfile ${train_source_output}/source_length.scp
-
+if [ ! -f "${train_source_output}/source_length.scp" ]; then
+    python utils/utt2numsamples.py --input_scp ${train_source_output}/speech_sources.scp --outfile ${train_source_output}/source_length.scp
+fi
 cat ${urgent25_path}/data/tmp/dns5_noise_resampled_train.scp \
 ${urgent25_path}/data/tmp/wham_noise_train.scp \
 ${urgent25_path}/data/tmp/fma_noise_resampled_train.scp \
