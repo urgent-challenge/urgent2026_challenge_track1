@@ -18,13 +18,13 @@ pip install -e ./
 Check the script `utils/prepare_train_data.sh`  and set `urgent25_path` in it with the path to the `urgent2025_challenge` project in your system. 
 This script assumes you have already run `prepare_espnet_data.sh` in the [urgent2025_challenge](https://github.com/urgent-challenge/urgent2025_challenge/) project.
 
-> Note: The WSJ dataset was included in `urgent2025_challenge` but has been removed in `urgent2026_challenge_track1`. You can skip the [preparation of WSJ](https://github.com/urgent-challenge/urgent2025_challenge/blob/daf1730cc11bf450d05c2d9e1d8bb3afdd63c427/prepare_espnet_data.sh#L91-L107) if you do not have the WSJ license. 
-
-
 ```bash 
 bash utils/prepare_train_data.sh
 ```
 By default, this script will generate a pre-simulated training set in `./data/train_simulation`, and a dynamic mixing training set in `./data/train_sources`.
+
+> Note: The WSJ dataset was included in `urgent2025_challenge` but has been removed in `urgent2026_challenge_track1`. You can skip the [preparation of WSJ](https://github.com/urgent-challenge/urgent2025_challenge/blob/daf1730cc11bf450d05c2d9e1d8bb3afdd63c427/prepare_espnet_data.sh#L91-L107) if you do not have the WSJ license. 
+
 
 The first is the pre-simulated data, which has the following form of directory structure:
 ```bash
