@@ -10,7 +10,7 @@ output_dir="downloads/SeniorTalk/"
 mkdir -p "${output_dir}"
 
 download_url="https://www.modelscope.cn/datasets/BAAI/SeniorTalk.git"
-# You can also replace with the huggingface repo: https://huggingface.co/datasets/BAAI/SeniorTalk
+# You can also replace the URL with the huggingface repo: https://huggingface.co/datasets/BAAI/SeniorTalk
 
 # Check if Git LFS is installed
 if git lfs version &> /dev/null; then

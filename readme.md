@@ -95,6 +95,28 @@ The training data `700h-TBF` is a subset of the ICASSP 2026 URGENT challenge, an
 |BSRNN-Flow | 700h-TBF |[HuggingFace 🤗](https://huggingface.co/lichenda/icassp_2026_urgent_baseline/resolve/main/flow_bsrnn.ckpt)|
 
 
+
+If you have used the above model, we would appreciate your citation of the following paper:
+
+
+```
+@article{liLessMoreData2025,
+	title = {Less is {More}: {Data} {Curation} {Matters} in {Scaling} {Speech} {Enhancement}},
+	shorttitle = {Less is {More}},
+	url = {http://arxiv.org/abs/2506.23859},
+	doi = {10.48550/arXiv.2506.23859},
+	urldate = {2025-09-10},
+	publisher = {arXiv},
+	author = {Li, Chenda and Zhang, Wangyou and Wang, Wei and Scheibler, Robin and Saijo, Kohei and Cornell, Samuele and Fu, Yihui and Sach, Marvin and Ni, Zhaoheng and Kumar, Anurag and Fingscheidt, Tim and Watanabe, Shinji and Qian, Yanmin},
+	month = aug,
+	year = {2025},
+	note = {arXiv:2506.23859 [eess]},
+	keywords = {Computer Science - Sound, Electrical Engineering and Systems Science - Audio and Speech Processing},
+	annote = {Comment: Accepted by ASRU2025},
+}
+```
+
+
 ### Inference:
 
 After downloading the checkpoints we provide or completing your own training, you can run the following script for speech enhancement.

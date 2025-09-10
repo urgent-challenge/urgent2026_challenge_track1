@@ -1,3 +1,6 @@
 [submodule "simulation/SC-Wind-Noise-Generator"]
 	path = simulation/SC-Wind-Noise-Generator
 	url = https://github.com/audiolabs/SC-Wind-Noise-Generator.git
+[submodule "evaluation_metrics/lib/NISQA"]
+	path = evaluation_metrics/lib/NISQA
+	url = https://github.com/gabrielmittag/NISQA.git
