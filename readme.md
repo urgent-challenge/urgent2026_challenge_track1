@@ -127,9 +127,10 @@ python baseline_code/inference.py --input_scp [path_to_input_scp] --output [outp
 
 ### Evaluation:
 
-First, install the necessary dependencies for evaluation:
+First, install the necessary dependencies for evaluation (Make sure you have finshed the [setup](#setup) in previous steps):
 
 ```bash
+pip install pip==24.0 # Some packages need this version.
 pip install -r evaluation_metrics/requirements.txt
 ```
 
