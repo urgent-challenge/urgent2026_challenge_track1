@@ -96,7 +96,7 @@ The training data `700h-TBF` is a subset of the ICASSP 2026 URGENT challenge, an
 
 
 
-If you have used the above model, we would appreciate your citation of the following paper:
+If you have used the above models, we would appreciate your citation of the following paper:
 
 
 ```
@@ -127,7 +127,7 @@ python baseline_code/inference.py --input_scp [path_to_input_scp] --output [outp
 
 ### Evaluation:
 
-First, install the necessary dependencies for evaluation (Make sure you have finshed the [setup](#setup) in previous steps):
+First, install the necessary dependencies for evaluation (Make sure you have finished the [setup](#setup) in previous steps):
 
 ```bash
 pip install pip==24.0 # Some packages need this version.
