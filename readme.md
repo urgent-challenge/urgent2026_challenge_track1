@@ -59,7 +59,7 @@ By default, this script will generate a simulated validation set in `./data/vali
 
 ### Download the pre-simulated dataset
 
-A pre-simulated training and validation dataset is available online at [HuggingFace 🤗](https://huggingface.co/datasets/lichenda/urgent26_track2_universal_se). Participants can download and use it directly without running the simulation. However, the simulated speech derived from the ESD subset is excluded due to licensing restrictions. You may apply for the license and run the simulation script yourself to obtain it.
+A pre-simulated training and validation dataset is available online at [HuggingFace 🤗](https://huggingface.co/datasets/lichenda/urgent26_track1_universal_se). Participants can download and use it directly without running the simulation. However, the simulated speech derived from the ESD subset is excluded due to licensing restrictions. You may apply for the license and run the simulation script yourself to obtain it.
 
 
 ### Training
