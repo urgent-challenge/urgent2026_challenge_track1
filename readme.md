@@ -124,3 +124,17 @@ After downloading the checkpoints we provide or completing your own training, yo
 ```bash
 python baseline_code/inference.py --input_scp [path_to_input_scp] --output [output_dir] --ckpt_path [path_to_checkpoint]
 ```
+
+### Evaluation:
+
+First, install the necessary dependencies for evaluation:
+
+```bash
+pip install -r evaluation_metrics/requirements.txt
+```
+
+Check the variables in  `evaluation_metrics/eval_all.sh` and run it:
+
+```bash
+bash evaluation_metrics/eval_all.sh
+```

@@ -162,6 +162,10 @@ def main(args):
     textcleaner = TextCleaner("whisper_basic")
     ret = []
     for uid, ref_text, inf_audio, lang_id in tqdm(data_pairs):
+        if ref_text == "<not-available>":
+            # skip the samples which text label are not available
+            print(f"{uid} skipped because reference text are not available")
+            continue
         _, score = process_one_pair(
             (uid, ref_text, inf_audio, lang_id), model=model, textcleaner=textcleaner
         )

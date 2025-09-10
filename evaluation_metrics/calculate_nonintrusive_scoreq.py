@@ -1,33 +1,36 @@
-import warnings
-from distutils.util import strtobool
 from pathlib import Path
+
 import numpy as np
-from nisqa_utils import load_nisqa_model, predict_nisqa
+import torch
 from tqdm import tqdm
+import sys
 
-METRICS = ("NISQA_MOS",)
+sys.path.append(str(Path(__file__).parent / "lib/scoreq/src/scoreq/"))
+import scoreq
 
 
-def str2bool(value: str) -> bool:
-    return bool(strtobool(value))
+
+
+METRICS = ("Scoreq",)
+TARGET_FS = 16000
 
 
 ################################################################
 # Definition of metrics
 ################################################################
-def nisqa_metric(model, audio_path):
-    """Calculate the NISQA metric.
+def scoreq_metric(model, audio_path):
+    """Calculate the Scoreq metric.
 
     Args:
-        model (torch.nn.Module): NISQA model
+        model (torch.nn.Module): Scoreq model
         audio_path: path to the enhanced signal
     Returns:
-        dnsmos (float): NISQA MOS value between [1, 5]
+        pred_mos (float): predicted MOS value between [1, 5]
     """
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", category=UserWarning)
-        nisqa_score = predict_nisqa(model, audio_path)
-    return float(nisqa_score["mos_pred"])
+    with torch.no_grad():
+        pred_mos = model.predict(test_path=audio_path, ref_path=None)
+
+    return pred_mos
 
 
 ################################################################
@@ -57,15 +60,10 @@ def main(args):
     writers = {
         metric: (outdir / f"{metric}{suffix}.scp").open("w") for metric in METRICS
     }
-    
-    if not Path(args.nisqa_model).exists():
-        raise ValueError(
-            f"The NISQA model '{args.nisqa_model}' doesn't exist."
-            " You can download the model from https://github.com/gabrielmittag/NISQA"
-            "/blob/master/weights/nisqa.tar"
-        )
 
-    model = load_nisqa_model(args.nisqa_model, device=args.device)
+    # Using the no-reference mode
+    # The model checkpoint will be automatically downloaded under ./pt-models
+    model = scoreq.Scoreq(data_domain="natural", mode="nr")
     ret = []
     for uid, inf_audio in tqdm(data_pairs):
         _, score = process_one_pair((uid, inf_audio), model=model)
@@ -91,8 +89,8 @@ def process_one_pair(data_pair, model=None):
 
     scores = {}
     for metric in METRICS:
-        if metric == "NISQA_MOS":
-            scores[metric] = nisqa_metric(model, inf_path)
+        if metric == "Scoreq":
+            scores[metric] = scoreq_metric(model, inf_path)
         else:
             raise NotImplementedError(metric)
 
@@ -119,7 +117,7 @@ if __name__ == "__main__":
         "--device",
         type=str,
         default="cpu",
-        help="Device for running DNSMOS calculation",
+        help="Device for running Scoreq calculation",
     )
     parser.add_argument(
         "--nsplits",
@@ -132,14 +130,6 @@ if __name__ == "__main__":
         type=int,
         default=1,
         help="Index of the current node (starting from 1)",
-    )
-
-    group = parser.add_argument_group("NISQA related")
-    group.add_argument(
-        "--nisqa_model",
-        type=str,
-        default="./evaluation_metrics/lib/NISQA/weights/nisqa.tar",
-        help="Path to the pretrained NISQA model (v2.0).",
     )
     args = parser.parse_args()
 

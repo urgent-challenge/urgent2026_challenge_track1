@@ -7,7 +7,6 @@ import soxr
 import torch
 from tqdm import tqdm
 import os
-import requests
 import urllib.request
 from espnet2.enh.layers.dnsmos import DNSMOS_local
 
@@ -22,14 +21,9 @@ def download_if_not_exists(url, local_filename):
     """
     if not os.path.exists(local_filename):
         print(f"{local_filename} not exists, downloading from {url}")
-        try:
-            os.makedirs(os.path.dirname(local_filename), exist_ok=True)
-            urllib.request.urlretrieve(url, local_filename)
-            print(f"Downloaded: {local_filename}")
-            return True
-        except requests.exceptions.RequestException as e:
-            print(f"Error downloading {url}: {e}")
-            return False
+        os.makedirs(os.path.dirname(local_filename), exist_ok=True)
+        urllib.request.urlretrieve(url, local_filename)
+        print(f"Downloaded: {local_filename}")
     else:
         print(f"File already exists: {local_filename}")
         return False

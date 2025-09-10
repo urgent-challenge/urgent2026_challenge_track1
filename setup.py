@@ -20,10 +20,6 @@ install_requires = [
     "ffmpeg==1.4",
     "soxr==0.5.0",
     "gdown==5.2.0",
-    "pesq==0.0.4",
-    "pystoi==0.4.1",
-    "onnxruntime==1.22.1",
-    "pandas==2.3.2"
 ]
 
 setup(

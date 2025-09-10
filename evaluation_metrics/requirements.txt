@@ -1,0 +1,14 @@
+pip==24.0
+pesq==0.0.4
+pystoi==0.4.1
+pandas==2.3.2
+onnxruntime
+phonemizer==3.3.0
+transformers==4.41.0
+espnet_model_zoo==0.1.7
+openai-whisper==20250625
+git+https://github.com/ftshijt/emotion2vec.git
+# for SpeechBERTScore metric
+# install a fork which supoprts multilingual SSL (MHuBERT-147)
+# Removed pypesq dependency as we do not use it and it sometimes cause a problem when installing
+git+https://github.com/kohei0209/DiscreteSpeechMetrics.git@mhubert_wo_pypesq

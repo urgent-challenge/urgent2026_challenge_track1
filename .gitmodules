@@ -4,3 +4,6 @@
 [submodule "evaluation_metrics/lib/NISQA"]
 	path = evaluation_metrics/lib/NISQA
 	url = https://github.com/gabrielmittag/NISQA.git
+[submodule "evaluation_metrics/lib/scoreq"]
+	path = evaluation_metrics/lib/scoreq
+	url = https://github.com/alessandroragano/scoreq.git

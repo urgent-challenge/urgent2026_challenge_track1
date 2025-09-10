@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 import torch
 
-sys.path.append(str(Path(__file__).parent.parent / "lib/NISQA"))
+sys.path.append(str(Path(__file__).parent / "lib/NISQA"))
 import nisqa.NISQA_lib as NL
 
 
